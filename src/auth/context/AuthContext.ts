@@ -1,12 +1,13 @@
 import { createContext } from "react";
+import { User } from "./AuthProvider";
 export enum AuthStatusType {
   AUTHENTICATED = "AUTHENTICATED",
   UNAUTHENTICATED = "UNAUTHENTICATED",
 }
 interface AuthContextProps {
   authStatus: AuthStatusType;
-  user: { id?: string; name?: string };
-  login: (username: string) => void;
+  user: User;
+  login: (params: any) => void;
   logout: () => void;
 }
 export const AuthContext = createContext<AuthContextProps>({

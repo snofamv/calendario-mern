@@ -1,29 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthContext, AuthStatusType } from "./index";
-import { v4 } from "uuid";
-interface User {
-  id?: string;
-  name?: string;
-}
+
 interface Props {
   children: JSX.Element;
 }
+
+export interface User {
+  _id: string;
+  name: string;
+}
+
 export const AuthProvider = ({ children }: Props) => {
-  // METODOS PARA ACTION
-  const [authStatus, setauthStatus] = useState<AuthStatusType>(
-    // AuthStatusType.UNAUTHENTICATED  //para estar en vista publica
-    AuthStatusType.AUTHENTICATED // para estar en vista privada
-  );
   const [user, setUser] = useState<User>({} as User);
+  const [authStatus, setAuthStatus] = useState<AuthStatusType>(
+    AuthStatusType.UNAUTHENTICATED
+  );
+
+  // Cargar datos del usuario desde localStorage al montar el componente
+  useEffect(() => {
+    const storage = localStorage.getItem("isLogged");
+    if (storage) {
+      try {
+        const parsedStorage = JSON.parse(storage);
+        if (parsedStorage.isLogged && parsedStorage.user) {
+          setUser({
+            _id: parsedStorage.user._id,
+            name: parsedStorage.user.name,
+          });
+          setAuthStatus(AuthStatusType.AUTHENTICATED);
+        }
+      } catch (error) {
+        console.error("Error al parsear localStorage:", error);
+      }
+    }
+  }, []);
+
   const handleLogout = () => {
-    setauthStatus(AuthStatusType.UNAUTHENTICATED);
+    localStorage.removeItem("isLogged");
+    setAuthStatus(AuthStatusType.UNAUTHENTICATED);
     setUser({} as User);
   };
-  const handleLogin = (user: string) => {
-    setauthStatus(AuthStatusType.AUTHENTICATED);
-    setUser({ id: v4(), name: user } as User);
+
+  const handleLogin = (params: any) => {
+    if (!params.success) return;
+
+    const newUser = {
+      _id: params.msg.uid,
+      name: params.msg.name,
+    };
+
+    localStorage.setItem(
+      "isLogged",
+      JSON.stringify({
+        isLogged: true,
+        user: newUser,
+        token: params.msg.token,
+      })
+    );
+
+    setUser(newUser);
+    setAuthStatus(AuthStatusType.AUTHENTICATED);
   };
-  // ----------------------------------------
+
   return (
     <AuthContext.Provider
       value={{

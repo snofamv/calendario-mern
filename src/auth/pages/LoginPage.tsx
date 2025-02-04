@@ -1,65 +1,87 @@
+import { useState } from "react";
+import { useAuth } from "../hooks";
+import { useApi } from "../../calendar/hooks/useApi";
+import Swal from "sweetalert2";
+import styles from "./styles.module.css";
+
 export const LoginPage = () => {
+  const { validateLogin } = useApi<any, any>(
+    "http://localhost:3001/api/auth",
+    "usuarios",
+    false
+  );
+  const { login } = useAuth();
+  const [formData, setFormData] = useState({
+    email: "snofamv1@gmail.com",
+    password: "123456",
+  });
+  const handleOnSubmit = () => {
+    event?.preventDefault();
+    const mutation = validateLogin;
+
+    Swal.fire({
+      title: "Procesando...",
+      text: "Validando credenciales...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    mutation.mutate(formData, {
+      onSuccess: (data) => {
+        setTimeout(() => {
+          Swal.fire({
+            title: "Credenciales validas",
+            text: "Validacion exitosa",
+            icon: "success",
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              login(data);
+            },
+          });
+        }, 1500); // 1500 ms (1.5 segundos)
+      },
+      onError: (error: any) => {
+        Swal.fire("Error", error.response.data.msg  || error.response.data.errors.email.msg, "error");
+      },
+    });
+  };
+  const onInputChange = (event: any) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
   return (
-    <div className="container login-container">
-      <div className="row">
-        <div className="col-md-6 login-form-1">
+    <div className={styles.container}>
+      <div className={styles.row}>
+        <div className={`col-md-6 ${styles["login-form-1"]}`}>
           <h3>Ingreso</h3>
-          <form>
+          <form onSubmit={handleOnSubmit}>
             <div className="form-group mb-2">
               <input
+                value={formData.email}
+                name="email"
                 type="text"
                 className="form-control"
                 placeholder="Correo"
+                onChange={onInputChange}
               />
             </div>
             <div className="form-group mb-2">
               <input
+                value={formData.password}
+                name="password"
                 type="password"
                 className="form-control"
                 placeholder="Contraseña"
-              />
-            </div>
-            <div className="form-group mb-2">
-              <input type="submit" className="btnSubmit" value="Login" />
-            </div>
-          </form>
-        </div>
-
-        <div className="col-md-6 login-form-2">
-          <h3>Registro</h3>
-          <form>
-            <div className="form-group mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nombre"
+                onChange={onInputChange}
               />
             </div>
             <div className="form-group mb-2">
               <input
-                type="email"
-                className="form-control"
-                placeholder="Correo"
+                type="submit"
+                className={`btnSubmit ${styles.btnSubmit}`}
+                value="Login"
               />
-            </div>
-            <div className="form-group mb-2">
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Contraseña"
-              />
-            </div>
-
-            <div className="form-group mb-2">
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Repita la contraseña"
-              />
-            </div>
-
-            <div className="form-group mb-2">
-              <input type="submit" className="btnSubmit" value="Crear cuenta" />
             </div>
           </form>
         </div>

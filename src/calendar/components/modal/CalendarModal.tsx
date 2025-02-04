@@ -51,7 +51,7 @@ export interface Event {
 }
 export const CalendarModal = () => {
   const { createEvent, updateEvent } = useApi<Event, any>(
-    "http://localhost:3001/api/calendar",
+    `${import.meta.env.VITE_API_URL}/calendar`,
     "eventos",
     false
   );

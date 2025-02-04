@@ -6,14 +6,14 @@ import styles from "./styles.module.css";
 
 export const LoginPage = () => {
   const { validateLogin } = useApi<any, any>(
-    "http://localhost:3001/api/auth",
+    `${import.meta.env.VITE_API_URL}/auth`,
     "usuarios",
     false
   );
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: "snofamv1@gmail.com",
-    password: "123456",
+    email: "",
+    password: "",
   });
   const handleOnSubmit = () => {
     event?.preventDefault();

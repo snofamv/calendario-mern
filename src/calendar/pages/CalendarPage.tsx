@@ -14,7 +14,7 @@ export const CalendarPage = () => {
   const [eventos, setEventos] = useState<Event[]>([]);
   const { showModal, setEvent } = useModal();
   const { fetchQuery } = useApi<Event | any, any>(
-    "http://localhost:3001/api/calendar",
+    `${import.meta.env.VITE_API_URL}/calendar`,
     "events"
   );
 
